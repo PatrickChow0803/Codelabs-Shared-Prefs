@@ -15,6 +15,7 @@
  */
 package com.example.android.hellosharedprefs;
 
+import android.content.SharedPreferences;
 import android.graphics.drawable.ColorDrawable;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
@@ -45,6 +46,13 @@ public class MainActivity extends AppCompatActivity {
     // Key for current color
     private final String COLOR_KEY = "color";
 
+    // Need this to access shared preferences
+    private SharedPreferences mPreferences;
+
+    // You can name this anything that you want to but you should name it after the package name.
+    private String sharedPrefFile =
+            "com.example.android.hellosharedprefs";
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -56,17 +64,31 @@ public class MainActivity extends AppCompatActivity {
         mColor = ContextCompat.getColor(this,
                 R.color.default_background);
 
+        //The getSharedPreferences() method (from the activity Context) opens
+        // the file at the given filename (sharedPrefFile) with the mode MODE_PRIVATE.
+        mPreferences = getSharedPreferences(sharedPrefFile, MODE_PRIVATE);
+
+        // getInt() method takes two arguments: one for the key, and the other for the default value if the key cannot be found.
+        // In this case the default value is 0, which is the same as the initial value of mCount.
+
+        mCount = mPreferences.getInt(COUNT_KEY, 0);
+        mShowCountTextView.setText(String.format("%s", mCount));
+
+        mColor = mPreferences.getInt(COLOR_KEY, mColor);
+        mShowCountTextView.setBackgroundColor(mColor);
+
         // Restore the saved instance state.
-        if (savedInstanceState != null) {
-
-            mCount = savedInstanceState.getInt(COUNT_KEY);
-            if (mCount != 0) {
-                mShowCountTextView.setText(String.format("%s", mCount));
-            }
-
-            mColor = savedInstanceState.getInt(COLOR_KEY);
-            mShowCountTextView.setBackgroundColor(mColor);
-        }
+        // Not needed anymore because we're using sharedPreferences now
+//        if (savedInstanceState != null) {
+//
+//            mCount = savedInstanceState.getInt(COUNT_KEY);
+//            if (mCount != 0) {
+//                mShowCountTextView.setText(String.format("%s", mCount));
+//            }
+//
+//            mColor = savedInstanceState.getInt(COLOR_KEY);
+//            mShowCountTextView.setBackgroundColor(mColor);
+//        }
     }
 
     /**
@@ -80,6 +102,23 @@ public class MainActivity extends AppCompatActivity {
         int color = ((ColorDrawable) view.getBackground()).getColor();
         mShowCountTextView.setBackgroundColor(color);
         mColor = color;
+    }
+
+
+    //save that data in the onPause() lifecycle callback, and you need a shared editor object
+    // (SharedPreferences.Editor) to write to the shared preferences object.
+    @Override
+    protected void onPause() {
+        super.onPause();
+        SharedPreferences.Editor preferencesEditor = mPreferences.edit();
+
+        preferencesEditor.putInt(COUNT_KEY, mCount);
+        preferencesEditor.putInt(COLOR_KEY, mColor);
+
+        // The apply() method saves the preferences asynchronously, off of the UI thread.
+        // The shared preferences editor also has a commit() method to synchronously save the preferences.
+        // The commit() method is discouraged as it can block other operations.
+        preferencesEditor.apply();
     }
 
     /**
@@ -100,13 +139,14 @@ public class MainActivity extends AppCompatActivity {
      *
      * @param outState The state data.
      */
-    @Override
-    protected void onSaveInstanceState(Bundle outState) {
-        super.onSaveInstanceState(outState);
-
-        outState.putInt(COUNT_KEY, mCount);
-        outState.putInt(COLOR_KEY, mColor);
-    }
+    // Not needed anymore because sharedPreferences does the same thing
+//    @Override
+//    protected void onSaveInstanceState(Bundle outState) {
+//        super.onSaveInstanceState(outState);
+//
+//        outState.putInt(COUNT_KEY, mCount);
+//        outState.putInt(COLOR_KEY, mColor);
+//    }
 
     /**
      * Handles the onClick for the Reset button. Resets the global count and
