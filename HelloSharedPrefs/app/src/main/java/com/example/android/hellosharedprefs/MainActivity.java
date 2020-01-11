@@ -164,5 +164,14 @@ public class MainActivity extends AppCompatActivity {
         mColor = ContextCompat.getColor(this,
                 R.color.default_background);
         mShowCountTextView.setBackgroundColor(mColor);
+
+        // get an editor for the SharedPreferences object:
+        SharedPreferences.Editor preferencesEditor = mPreferences.edit();
+
+        // Delete all the shared preferences:
+        preferencesEditor.clear();
+
+        // Apply the changes
+        preferencesEditor.apply();
     }
 }
