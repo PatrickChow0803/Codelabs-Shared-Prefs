@@ -71,9 +71,9 @@ public class MainActivity extends AppCompatActivity {
         // getInt() method takes two arguments: one for the key, and the other for the default value if the key cannot be found.
         // In this case the default value is 0, which is the same as the initial value of mCount.
 
+        // Restore preferences
         mCount = mPreferences.getInt(COUNT_KEY, 0);
         mShowCountTextView.setText(String.format("%s", mCount));
-
         mColor = mPreferences.getInt(COLOR_KEY, mColor);
         mShowCountTextView.setBackgroundColor(mColor);
 
